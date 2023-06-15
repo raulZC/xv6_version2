@@ -23,7 +23,7 @@ extern int getpid(void);
 extern char* sbrk(int);
 extern int sleep(int);
 extern int uptime(void);
-
+extern int date(struct rtcdate *);
 // ulib.c
 extern int stat(const char*, struct stat*);
 extern char* strcpy(char*, const char*);

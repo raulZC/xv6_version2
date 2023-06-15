@@ -163,3 +163,9 @@ SYSCALL(uptime)
   d2:	b8 0e 00 00 00       	mov    $0xe,%eax
   d7:	cd 40                	int    $0x40
   d9:	c3                   	ret    
+
+000000da <date>:
+SYSCALL(date)
+  da:	b8 16 00 00 00       	mov    $0x16,%eax
+  df:	cd 40                	int    $0x40
+  e1:	c3                   	ret    

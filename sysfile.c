@@ -67,6 +67,39 @@ sys_dup(void)
 }
 
 int
+sys_dup2(void){
+
+  struct file *oldf, *newf;
+  int oldfd,newfd;
+  struct proc *curproc = myproc(); 
+  
+  if(argfd(0, &oldfd, &oldf) < 0) // Obtenemos el descriptor de fichero y el fichero (file *) a partir del argumento 0.
+    return -1;
+  
+  if(argint(1, &newfd)<0) // Obtenemos el nuevo descriptor de fichero a partir del argumento 1.
+    return -1;
+  
+  if(oldfd == newfd) // Si los descriptores de fichero son iguales, no es necesario duplicar.
+    return newfd;
+  
+  if(oldfd < 0 || oldfd >= NOFILE || newfd < 0 || newfd >= NOFILE) // Comprobamos que los descriptores de fichero están dentro de los límites válidos.
+    return -1;
+
+  newf=curproc->ofile[newfd]; // Obtenemos el fichero (file *) correspondiente al nuevo descriptor.
+
+  if(newf!=NULL) //Si el nuevo descriptor de fichero está en uso, cierra el fichero.
+    fileclose(newf);
+    
+  curproc->ofile[newfd] = oldf; // Asignamos el fichero del descriptor antiguo al nuevo descriptor.
+
+  filedup(oldf); // Incrementa el contador de referencias del fichero.
+
+  return newfd;
+}
+
+
+
+int
 sys_read(void)
 {
   struct file *f;

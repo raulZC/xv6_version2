@@ -169,3 +169,8 @@ SYSCALL(date)
   da:	b8 16 00 00 00       	mov    $0x16,%eax
   df:	cd 40                	int    $0x40
   e1:	c3                   	ret    
+
+000000e2 <dup2>:
+  e2:	b8 17 00 00 00       	mov    $0x17,%eax
+  e7:	cd 40                	int    $0x40
+  e9:	c3                   	ret    

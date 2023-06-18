@@ -94,7 +94,12 @@ trap(struct trapframe *tf)
         myproc()->killed = 1;
         break;
       }
-      
+      // Comprobamos página que provocó el fallo coincide con la página de guardia 
+      if (dirPageErr == myproc()->guard_page)
+      {
+        myproc()->killed = 1;
+        break;
+      }
       // Fallo de página al arrancar el sistema (no hay un proceso ejecutandose) 
       if(myproc() == 0){
           cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",

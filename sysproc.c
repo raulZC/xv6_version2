@@ -57,8 +57,11 @@ sys_sbrk(void)
   if(argint(0, &n) < 0)
     return -1;
   addr = myproc()->sz;
-  if(growproc(n) < 0)
-    return -1;
+
+  if(n > 0){
+    myproc()->sz += n; // Si es mayor que 0 se aumenta el tamaño del proceso pero no se llama a growproc (allocuvm)
+  }
+
   return addr;
 }
 

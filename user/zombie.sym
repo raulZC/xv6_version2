@@ -1,5 +1,5 @@
 00000000 .text
-000000f0 .eh_frame
+00000100 .eh_frame
 00000000 .comment
 00000000 .debug_aranges
 00000000 .debug_info
@@ -20,14 +20,16 @@
 00000047 wait
 00000057 read
 0000008f unlink
+000000ef getprio
 00000037 fork
 000000c7 sbrk
 000000d7 uptime
-0000012c __bss_start
+0000013c __bss_start
 00000000 main
 000000b7 dup
-0000012c _edata
-0000012c _end
+000000f7 setprio
+0000013c _edata
+0000013c _end
 000000df date
 0000009f link
 0000003f exit

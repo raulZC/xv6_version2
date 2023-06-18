@@ -122,6 +122,8 @@ void            userinit(void);
 int             wait(int*);
 void            wakeup(void*);
 void            yield(void);
+enum proc_prio getprio(int pid);
+int setprio(int pid, enum proc_prio prio);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

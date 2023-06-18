@@ -92,6 +92,7 @@ extern int sys_exit(void);
 extern int sys_fork(void);
 extern int sys_fstat(void);
 extern int sys_getpid(void);
+extern int sys_getprio(void);
 extern int sys_kill(void);
 extern int sys_link(void);
 extern int sys_mkdir(void);
@@ -100,6 +101,7 @@ extern int sys_open(void);
 extern int sys_pipe(void);
 extern int sys_read(void);
 extern int sys_sbrk(void);
+extern int sys_setprio(void);
 extern int sys_sleep(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
@@ -130,6 +132,8 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_date]    sys_date,
 [SYS_dup2]    sys_dup2,
+[SYS_getprio] sys_getprio,
+[SYS_setprio] sys_setprio
 };
 
 void

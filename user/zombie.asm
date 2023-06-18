@@ -173,6 +173,18 @@ SYSCALL(date)
   e6:	c3                   	ret    
 
 000000e7 <dup2>:
+SYSCALL(dup2)
   e7:	b8 17 00 00 00       	mov    $0x17,%eax
   ec:	cd 40                	int    $0x40
   ee:	c3                   	ret    
+
+000000ef <getprio>:
+SYSCALL(getprio)
+  ef:	b8 18 00 00 00       	mov    $0x18,%eax
+  f4:	cd 40                	int    $0x40
+  f6:	c3                   	ret    
+
+000000f7 <setprio>:
+  f7:	b8 19 00 00 00       	mov    $0x19,%eax
+  fc:	cd 40                	int    $0x40
+  fe:	c3                   	ret    

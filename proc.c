@@ -89,6 +89,9 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
 
+  // Establecemos la prioridad inicial a NORMAL
+  p->prio = NORM_PRIO;
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -200,6 +203,9 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
+  // Asignamos la misma prioridad que el padre.
+  np->prio = curproc->prio;
+  
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -332,15 +338,17 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+  struct proc* ultimo_proceso_ejecutado = 0; // Variable para guardar el ultimo proceso ejecutado
+  int flag = 0; // Variable para saber si se ejecuto un proceso de prioridad alta
 
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
+    flag = 0;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->prio != HI_PRIO || p->state != RUNNABLE)
         continue;
 
       // Switch to chosen process.  It is the process's job
@@ -356,11 +364,43 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+      flag = 1;
+    }
+   
+    if(!flag){
+      p = ultimo_proceso_ejecutado ? (ultimo_proceso_ejecutado + 1) : ptable.proc;
+
+      for(; p < &ptable.proc[NPROC]; p++){
+        // Skip if not normal priority
+        if(p->prio != NORM_PRIO || p->state != RUNNABLE)
+          continue;
+
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+        ultimo_proceso_ejecutado = p; 
+        break;
+      }
+      if(p >= &ptable.proc[NPROC]){
+
+        ultimo_proceso_ejecutado = 0;
+      }
     }
     release(&ptable.lock);
 
   }
 }
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -538,4 +578,36 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+enum proc_prio
+getprio(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      release(&ptable.lock);
+      return p->prio;
+    }
+  }
+  release(&ptable.lock);
+  return -1; 
+}
+
+
+int
+setprio(int pid, enum proc_prio prio)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      p->prio = prio;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+  release(&ptable.lock);
+  return -1; 
 }

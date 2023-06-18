@@ -33,6 +33,8 @@ struct context {
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+// Definimos la variable proc_prio que puede tomar los valores NORM_PRIO o HI_PRIO que sirve para definir la prioridad de un proceso
+enum proc_prio { NORM_PRIO, HI_PRIO };
 
 // Per-process state
 struct proc {
@@ -51,6 +53,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   int exit_status;             // Exit status
   uint guard_page;             // Guard page
+  enum proc_prio prio;         // Process priority
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -44,7 +44,7 @@ forktest(void)
   int n, pid;
 
   printf(1, "fork test\n");
-  34:	68 80 03 00 00       	push   $0x380
+  34:	68 90 03 00 00       	push   $0x390
   39:	6a 01                	push   $0x1
   3b:	e8 c0 ff ff ff       	call   0 <printf>
 
@@ -93,7 +93,7 @@ forktest(void)
     printf(1, "fork claimed to work N times!\n", N);
   88:	83 ec 04             	sub    $0x4,%esp
   8b:	68 e8 03 00 00       	push   $0x3e8
-  90:	68 c0 03 00 00       	push   $0x3c0
+  90:	68 d0 03 00 00       	push   $0x3d0
   95:	6a 01                	push   $0x1
   97:	e8 64 ff ff ff       	call   0 <printf>
     exit(0);
@@ -101,7 +101,7 @@ forktest(void)
   a3:	e8 27 02 00 00       	call   2cf <exit>
       printf(1, "wait stopped early\n");
   a8:	83 ec 08             	sub    $0x8,%esp
-  ab:	68 8b 03 00 00       	push   $0x38b
+  ab:	68 9b 03 00 00       	push   $0x39b
   b0:	6a 01                	push   $0x1
   b2:	e8 49 ff ff ff       	call   0 <printf>
       exit(0);
@@ -123,7 +123,7 @@ forktest(void)
 
   printf(1, "fork test OK\n");
   d5:	83 ec 08             	sub    $0x8,%esp
-  d8:	68 b2 03 00 00       	push   $0x3b2
+  d8:	68 c2 03 00 00       	push   $0x3c2
   dd:	6a 01                	push   $0x1
   df:	e8 1c ff ff ff       	call   0 <printf>
 }
@@ -133,7 +133,7 @@ forktest(void)
   eb:	c3                   	ret    
     printf(1, "wait got too many\n");
   ec:	83 ec 08             	sub    $0x8,%esp
-  ef:	68 9f 03 00 00       	push   $0x39f
+  ef:	68 af 03 00 00       	push   $0x3af
   f4:	6a 01                	push   $0x1
   f6:	e8 05 ff ff ff       	call   0 <printf>
     exit(0);
@@ -625,6 +625,18 @@ SYSCALL(date)
  376:	c3                   	ret    
 
 00000377 <dup2>:
+SYSCALL(dup2)
  377:	b8 17 00 00 00       	mov    $0x17,%eax
  37c:	cd 40                	int    $0x40
  37e:	c3                   	ret    
+
+0000037f <getprio>:
+SYSCALL(getprio)
+ 37f:	b8 18 00 00 00       	mov    $0x18,%eax
+ 384:	cd 40                	int    $0x40
+ 386:	c3                   	ret    
+
+00000387 <setprio>:
+ 387:	b8 19 00 00 00       	mov    $0x19,%eax
+ 38c:	cd 40                	int    $0x40
+ 38e:	c3                   	ret    

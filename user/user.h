@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+enum proc_prio { NORM_PRIO, HI_PRIO };
 
 // system calls
 extern int fork(void);
@@ -27,6 +28,9 @@ extern char* sbrk(int);
 extern int sleep(int);
 extern int uptime(void);
 extern int date(struct rtcdate *);
+extern enum proc_prio getprio(int);
+extern int setprio(int, enum proc_prio);
+
 // ulib.c
 extern int stat(const char*, struct stat*);
 extern char* strcpy(char*, const char*);

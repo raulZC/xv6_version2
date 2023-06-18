@@ -107,9 +107,29 @@ sys_date(void){
 
   struct rtcdate *d;
   
-  if(argptr(0,(void **)&d,sizeof(struct rtcdate))<-1)
+  if(argptr(0,(void **)&d,sizeof(struct rtcdate))<0)
     return -1;
   cmostime(d);
   return 0;
 
+}
+
+int
+sys_getprio(void)
+{
+  int pid;
+  if(argint(0, &pid) < 0)
+    return -1;
+  
+  return getprio(pid);
+}
+
+int
+sys_setprio(void)
+{
+  int pid;
+  enum proc_prio prio;
+  if(argint(0, &pid) < 0 || argptr(1, (void **)&prio, sizeof(enum proc_prio)) < 0)
+    return -1;
+  return setprio(pid, prio);
 }

@@ -338,13 +338,13 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  struct proc* ultimo_proceso_ejecutado = 0; // Variable para guardar el ultimo proceso ejecutado
-  int flag = 0; // Variable para saber si se ejecuto un proceso de prioridad alta
+  struct proc* ultimo_proceso_ejecutado_norm = 0; // Variable para guardar el ultimo proceso de prioridad normal ejecutado
+  int flagHI = 0; // Variable para saber si se ha ejecutado proceso de prioridad alta
 
   for(;;){
     // Enable interrupts on this processor.
     sti();
-    flag = 0;
+    flagHI = 0;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -364,20 +364,17 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-      flag = 1;
+      flagHI = 1;
     }
    
-    if(!flag){
-      p = ultimo_proceso_ejecutado ? (ultimo_proceso_ejecutado + 1) : ptable.proc;
+    if(!flagHI){
+    // Si el ultimo proceso ejecutado es nulo (0), se ejecuta desde el principio de la tabla de procesos en otro caso se avanzaría al siguiente proceso
+      p = ultimo_proceso_ejecutado_norm ? (ultimo_proceso_ejecutado_norm + 1) : ptable.proc; 
 
-      for(; p < &ptable.proc[NPROC]; p++){
-        // Skip if not normal priority
+      for(;p < &ptable.proc[NPROC]; p++){
         if(p->prio != NORM_PRIO || p->state != RUNNABLE)
           continue;
 
-        // Switch to chosen process.  It is the process's job
-        // to release ptable.lock and then reacquire it
-        // before jumping back to us.
         c->proc = p;
         switchuvm(p);
         p->state = RUNNING;
@@ -385,15 +382,14 @@ scheduler(void)
         swtch(&(c->scheduler), p->context);
         switchkvm();
 
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
         c->proc = 0;
-        ultimo_proceso_ejecutado = p; 
+        ultimo_proceso_ejecutado_norm = p; 
         break;
-      }
-      if(p >= &ptable.proc[NPROC]){
 
-        ultimo_proceso_ejecutado = 0;
+      }
+      // Si se llega al final de la tabla de procesos se vuelve a empezar
+      if(p+1 >= &ptable.proc[NPROC]){
+        ultimo_proceso_ejecutado_norm = 0;
       }
     }
     release(&ptable.lock);

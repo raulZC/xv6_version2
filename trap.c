@@ -81,49 +81,56 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-    case T_PGFLT: // Si se captura un fallo de página 
+  case T_PGFLT: // Si se captura un fallo de página 
 
-      // Redondeamos la direccion virtual del error al limite de la página
-      dirPageErr = PGROUNDDOWN(rcr2());
-      // Comprobamos si la dirección de memoria que ha causado el fallo de página está dentro del tamaño del proceso
-      if(rcr2() >= myproc()->sz){ 
-        cprintf("pid %d %s: trap %d err %d on cpu %d "
-              "eip 0x%x addr 0x%x--kill proc\n",
-              myproc()->pid, myproc()->name, tf->trapno,
-              tf->err, cpuid(), tf->eip, rcr2());
-        myproc()->killed = 1;
-        break;
-      }
-      // Comprobamos página que provocó el fallo coincide con la página de guardia 
-      if (dirPageErr == myproc()->guard_page)
-      {
-        myproc()->killed = 1;
-        break;
-      }
-      // Fallo de página al arrancar el sistema (no hay un proceso ejecutandose) 
-      if(myproc() == 0){
-          cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
-                tf->trapno, cpuid(), tf->eip, rcr2());
-        panic("trap");
-      }
-
-      // Reservamos una nueva página física
-      mem = kalloc();
-      if(mem == 0){
-        cprintf("Out of memory (T_PGFLT) kalloc\n");
-        myproc()->killed = 1;
-        break;
-      }
-      else {
-        memset(mem, 0, PGSIZE); //Inicializamos la página 0s para que no haya información residual
-        if(mappages(myproc()->pgdir, (char*)dirPageErr, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
-          cprintf("Out of memory (T_PGFLT) mappages\n");
-          kfree(mem);
-          myproc()->killed = 1;
-          break;
-        }
-      }
+    // Redondeamos la direccion virtual del error al limite de la página
+    dirPageErr = PGROUNDDOWN(rcr2());
+    // Comprobamos si la dirección de memoria que ha causado el fallo de página está dentro del tamaño del proceso
+    if(rcr2() >= myproc()->sz){ 
+      cprintf("pid %d %s: trap %d err %d on cpu %d "
+            "eip 0x%x addr 0x%x--kill proc\n",
+            myproc()->pid, myproc()->name, tf->trapno,
+            tf->err, cpuid(), tf->eip, rcr2());
+      myproc()->killed = 1;
       break;
+    }
+        
+    // Comprobamos página que provocó el fallo coincide con la página de guardia 
+    if (dirPageErr == myproc()->guard_page)
+    {
+      myproc()->killed = 1;
+      break;
+    }
+    // Fallo de página al arrancar el sistema (no hay un proceso ejecutandose) 
+    if(myproc() == 0){
+        cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
+              tf->trapno, cpuid(), tf->eip, rcr2());
+      panic("trap");
+    }
+
+    // Reservamos una nueva página física
+    mem = kalloc();
+    if(mem == 0){
+      cprintf("Out of memory (T_PGFLT) kalloc\n");
+      myproc()->killed = 1;
+      break;
+    }
+    else {
+      memset(mem, 0, PGSIZE); //Inicializamos la página 0s para que no haya información residual
+      if(mappages(myproc()->pgdir, (char*)dirPageErr, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
+        cprintf("Out of memory (T_PGFLT) mappages\n");
+        kfree(mem);
+        myproc()->killed = 1;
+        break;
+      }
+    }
+
+    cprintf("pid %d %s: trap %d err %d on cpu %d "
+            "eip 0x%x addr 0x%x--kill proc\n",
+            myproc()->pid, myproc()->name, tf->trapno,
+            tf->err, cpuid(), tf->eip, rcr2());
+
+    break;
 
   //PAGEBREAK: 13
   default:
